@@ -277,8 +277,9 @@ out <- detect_as(
 )
 }
 \references{
-Gorney, K., & Wollack, J. A. (2024). \emph{Using response times in answer
-similarity analysis} [Manuscript submitted for publication].
+Gorney, K., & Wollack, J. A. (2024). Using response times in answer
+similarity analysis. \emph{Journal of Educational and Behavioral Statistics}.
+Advance online publication.
 
 Maynes, D. (2014). Detection of non-independent test taking by similarity
 analysis. In N. M. Kingston & A. K. Clark (Eds.), \emph{Test fraud: Statistical

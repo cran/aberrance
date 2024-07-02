@@ -85,12 +85,12 @@
 #' *British Journal of Mathematical and Statistical Psychology*, *38*(1),
 #' 67--86.
 #'
-#' Gorney, K. (2024). *Three new corrections for standardized person-fit
-#' statistics for tests with polytomous items* \[Manuscript submitted for
-#' publication].
+#' Gorney, K. (2024). Three new corrections for standardized person-fit
+#' statistics for tests with polytomous items. *British Journal of Mathematical
+#' and Statistical Psychology*. Advance online publication.
 #'
-#' Gorney, K., Sinharay, S., & Eckerly, C. (2024). *Efficient corrections for
-#' standardized person-fit statistics* \[Manuscript submitted for publication].
+#' Gorney, K., Sinharay, S., & Eckerly, C. (2024). Efficient corrections for
+#' standardized person-fit statistics. *Psychometrika*, *89*(2), 569--591.
 #'
 #' Gorney, K., Sinharay, S., & Liu, X. (2024). Using item scores and response
 #' times in person-fit assessment. *British Journal of Mathematical and

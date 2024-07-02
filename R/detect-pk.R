@@ -25,8 +25,8 @@
 #'   - `"L_ST"` for the constrained likelihood ratio test statistic (Sinharay &
 #'     Johnson, 2020).
 #'
-#' @param ci A vector of compromised item positions. Length must be greater
-#'   than 1. All other items are presumed secure.
+#' @param ci A vector of compromised item positions. All other items are
+#'   presumed secure.
 #'
 #' @param xi,xi_c,xi_s Matrices of person parameters. `xi` is based on all
 #'   items, `xi_c` is based on the compromised items, and `xi_s` is based on the

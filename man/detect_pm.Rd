@@ -205,12 +205,12 @@ measurement with polychotomous item response models and standardized indices.
 \emph{British Journal of Mathematical and Statistical Psychology}, \emph{38}(1),
 67--86.
 
-Gorney, K. (2024). \emph{Three new corrections for standardized person-fit
-statistics for tests with polytomous items} [Manuscript submitted for
-publication].
+Gorney, K. (2024). Three new corrections for standardized person-fit
+statistics for tests with polytomous items. \emph{British Journal of Mathematical
+and Statistical Psychology}. Advance online publication.
 
-Gorney, K., Sinharay, S., & Eckerly, C. (2024). \emph{Efficient corrections for
-standardized person-fit statistics} [Manuscript submitted for publication].
+Gorney, K., Sinharay, S., & Eckerly, C. (2024). Efficient corrections for
+standardized person-fit statistics. \emph{Psychometrika}, \emph{89}(2), 569--591.
 
 Gorney, K., Sinharay, S., & Liu, X. (2024). Using item scores and response
 times in person-fit assessment. \emph{British Journal of Mathematical and

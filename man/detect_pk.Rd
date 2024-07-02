@@ -47,8 +47,8 @@ Options for score and response time-based statistics are:
 Johnson, 2020).
 }}
 
-\item{ci}{A vector of compromised item positions. Length must be greater
-than 1. All other items are presumed secure.}
+\item{ci}{A vector of compromised item positions. All other items are
+presumed secure.}
 
 \item{psi}{A matrix of item parameters.}
 

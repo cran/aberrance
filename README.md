@@ -4,6 +4,9 @@
 # aberrance
 
 <!-- badges: start -->
+
+[![](https://www.r-pkg.org/badges/version/aberrance)](https://CRAN.R-project.org/package=aberrance)
+[![](https://cranlogs.r-pkg.org/badges/aberrance)](https://CRAN.R-project.org/package=aberrance)
 <!-- badges: end -->
 
 The *aberrance* package contains a collection of functions for detecting
