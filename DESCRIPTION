@@ -1,6 +1,6 @@
 Package: aberrance
 Title: Detect Aberrant Behavior in Test Data
-Version: 0.1.1
+Version: 0.2.0
 Authors@R: c(
     person(
       "Kylie", "Gorney",
@@ -24,9 +24,9 @@ Imports: graphics, grDevices, MASS, stats, utils
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 NeedsCompilation: no
-Packaged: 2024-07-02 19:52:25 UTC; 17156
+Packaged: 2025-02-07 15:57:18 UTC; 17156
 Author: Kylie Gorney [aut, cph, cre] (<https://orcid.org/0000-0002-8924-0726>),
   Jiayi Deng [aut, cph] (<https://orcid.org/0000-0002-1962-2956>)
 Maintainer: Kylie Gorney <kgorney@msu.edu>
 Repository: CRAN
-Date/Publication: 2024-07-02 21:20:01 UTC
+Date/Publication: 2025-02-07 16:30:02 UTC
