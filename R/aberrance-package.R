@@ -10,6 +10,7 @@
 #' @importFrom graphics segments
 #' @importFrom grDevices recordPlot
 #' @importFrom MASS mvrnorm
+#' @importFrom Rcpp evalCpp
 #' @importFrom stats cor
 #' @importFrom stats cov
 #' @importFrom stats dnorm
@@ -24,5 +25,6 @@
 #' @importFrom stats rnorm
 #' @importFrom stats runif
 #' @importFrom utils combn
+#' @useDynLib aberrance, .registration = TRUE
 ## usethis namespace: end
 NULL

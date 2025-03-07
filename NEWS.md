@@ -1,3 +1,7 @@
+# aberrance 0.2.1
+
+* Convert `compute_GBT()` and `compute_M4()` to C++.
+
 # aberrance 0.2.0
 
 * Add unconditional weighted omega statistic to `detect_as()`.
@@ -7,8 +11,6 @@
 # aberrance 0.1.1
 
 * Add package citation.
-
-* Add badges.
 
 # aberrance 0.1.0
 

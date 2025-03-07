@@ -176,18 +176,20 @@ detect_ac <- function(method,
     p_mat <- irt_p(m, psi, xi, ignore = "lambda1")
     for (v in 1:NN) {
       s <- as.integer(x[pair[v, 1], ] == x[pair[v, 2], ])
-      p <- q <- rep(NA, times = n)
-      for (i in 1:n) {
-        p[i] <- p_mat[pair[v, 2], i, x[pair[v, 1], i] + 1]
-        q[i] <- p_mat[pair[v, 1], i, x[pair[v, 2], i] + 1]
-      }
-      if ("OMG_S" %in% method) {
-        stat[v, "OMG_S"] <- compute_OMG(s, p)
-        stat[v + NN, "OMG_S"] <- compute_OMG(s, q)
-      }
-      if ("GBT_S" %in% method) {
-        stat[v, "GBT_S"] <- compute_GBT(s, p)
-        stat[v + NN, "GBT_S"] <- compute_GBT(s, q)
+      if (all(!is.na(s))) {
+        p <- q <- rep(NA, times = n)
+        for (i in 1:n) {
+          p[i] <- p_mat[pair[v, 2], i, x[pair[v, 1], i] + 1]
+          q[i] <- p_mat[pair[v, 1], i, x[pair[v, 2], i] + 1]
+        }
+        if ("OMG_S" %in% method) {
+          stat[v, "OMG_S"] <- compute_OMG(s, p)
+          stat[v + NN, "OMG_S"] <- compute_OMG(s, q)
+        }
+        if ("GBT_S" %in% method) {
+          stat[v, "GBT_S"] <- compute_GBT(s, p)
+          stat[v + NN, "GBT_S"] <- compute_GBT(s, q)
+        }
       }
     }
   }
@@ -198,18 +200,20 @@ detect_ac <- function(method,
     p_mat <- irt_p(m, psi, xi)
     for (v in 1:NN) {
       s <- as.integer(r[pair[v, 1], ] == r[pair[v, 2], ])
-      p <- q <- rep(NA, times = n)
-      for (i in 1:n) {
-        p[i] <- p_mat[pair[v, 2], i, r[pair[v, 1], i]]
-        q[i] <- p_mat[pair[v, 1], i, r[pair[v, 2], i]]
-      }
-      if ("OMG_R" %in% method) {
-        stat[v, "OMG_R"] <- compute_OMG(s, p)
-        stat[v + NN, "OMG_R"] <- compute_OMG(s, q)
-      }
-      if ("GBT_R" %in% method) {
-        stat[v, "GBT_R"] <- compute_GBT(s, p)
-        stat[v + NN, "GBT_R"] <- compute_GBT(s, q)
+      if (all(!is.na(s))) {
+        p <- q <- rep(NA, times = n)
+        for (i in 1:n) {
+          p[i] <- p_mat[pair[v, 2], i, r[pair[v, 1], i]]
+          q[i] <- p_mat[pair[v, 1], i, r[pair[v, 2], i]]
+        }
+        if ("OMG_R" %in% method) {
+          stat[v, "OMG_R"] <- compute_OMG(s, p)
+          stat[v + NN, "OMG_R"] <- compute_OMG(s, q)
+        }
+        if ("GBT_R" %in% method) {
+          stat[v, "GBT_R"] <- compute_GBT(s, p)
+          stat[v + NN, "GBT_R"] <- compute_GBT(s, q)
+        }
       }
     }
   }

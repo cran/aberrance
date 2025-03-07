@@ -226,8 +226,8 @@ detect_pm <- function(method,
           tmp <- c(tmp, paste(
             extract(m, 1:2),
             c("NO", "TS"),
-            sep = "_")
-          )
+            sep = "_"
+          ))
         } else {
           tmp <- c(tmp, paste(
             extract(m, 1:2),

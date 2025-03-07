@@ -17,22 +17,6 @@ compute_EDI_TS <- function(s, p, p1, info) {
            sum(rowSums(p1, na.rm = TRUE)^2 / info))
 }
 
-#' Compute the generalized binomial test statistic
-#'
-#' @noRd
-
-compute_GBT <- function(s, p) {
-  n <- length(p)
-  f <- rep(0, times = n + 1)
-  f[1:2] <- c(1 - p[1], p[1])
-  if (n > 1) {
-    for (i in 2:n) {
-      f[1:(i+1)] <- c(f[1:i] * (1 - p[i]), 0) + c(0, f[1:i] * p[i])
-    }
-  }
-  sum(f[(sum(s)+1):(n+1)])
-}
-
 #' Compute the signed likelihood ratio test statistic
 #'
 #' @noRd
@@ -43,35 +27,6 @@ compute_L <- function(x, p_0, p_1, theta_c, theta_s) {
   L <- 2 * rowSums(l_1 - l_0)
   L[L < 0] <- 0
   sign(theta_c - theta_s) * sqrt(L)
-}
-
-#' Compute the M4 statistic
-#'
-#' @param s A vector of length 2 containing the number of matching correct
-#'   answers and the number of matching incorrect answers.
-#' @param p An (n x 3) matrix. The three columns contain the probabilities of
-#'   matching correct answers, the probabilities of matching incorrect answers,
-#'   and the probabilities of non-matching answers, respectively.
-#'
-#' @noRd
-
-compute_M4 <- function(s, p) {
-  n <- nrow(p)
-  f <- F <- matrix(0, nrow = n + 1, ncol = n + 1)
-  g <- array(0, dim = c(n + 1, n + 1, 3))
-  f[2, 1] <- p[1, 1]
-  f[1, 2] <- p[1, 2]
-  f[1, 1] <- p[1, 3]
-  for (i in 2:n) {
-    g[-1, , 1] <- p[i, 1] * f[1:n, ]
-    g[, -1, 2] <- p[i, 2] * f[, 1:n]
-    g[, , 3] <- p[i, 3] * f
-    f <- apply(g, 1:2, sum)
-  }
-  for (i in 1:(n+1)) {
-    F[, i] <- rev(cumsum(rev(rowSums(cbind(f[, i:(n+1)])))))
-  }
-  sum(f[F <= F[sum(s[, 1])+1, sum(s[, 2])+1]])
 }
 
 #' Compute the omega statistic

@@ -273,31 +273,34 @@ detect_as <- function(method,
     p_mat <- irt_p(m, psi, xi, ignore = "lambda1")
     for (v in 1:NN) {
       s <- as.integer(x[pair[v, 1], ] == x[pair[v, 2], ])
-      p <- rowSums(p_mat[pair[v, 1], , ] * p_mat[pair[v, 2], , ], na.rm = TRUE)
-      if ("OMG_S" %in% method) {
-        stat[v, "OMG_S"] <- compute_OMG(s, p)
-      }
-      if ("WOMG_S" %in% method) {
-        stat[v, "WOMG_S"] <- compute_WOMG(s, p)
-      }
-      if ("GBT_S" %in% method) {
-        stat[v, "GBT_S"] <- compute_GBT(s, p)
-      }
-      if ("M4_S" %in% method) {
-        if ("b" %in% colnames(psi)) {
-          s_1 <- as.integer((x[pair[v, 1], ] == 1) & (x[pair[v, 2], ] == 1))
-          p_1 <- p_mat[pair[v, 1], , 2] * p_mat[pair[v, 2], , 2]
-        } else {
-          s_1 <- as.integer((x[pair[v, 1], ] == (m - 1)) &
-                              (x[pair[v, 2], ] == (m - 1)))
-          p_1 <- rep(NA, times = n)
-          for (i in 1:n) {
-            p_1[i] <- p_mat[pair[v, 1], i, m[i]] * p_mat[pair[v, 2], i, m[i]]
-          }
+      if (all(!is.na(s))) {
+        p <-
+          rowSums(p_mat[pair[v, 1], , ] * p_mat[pair[v, 2], , ], na.rm = TRUE)
+        if ("OMG_S" %in% method) {
+          stat[v, "OMG_S"] <- compute_OMG(s, p)
         }
-        s_0 <- s - s_1
-        p_0 <- p - p_1
-        stat[v, "M4_S"] <- compute_M4(cbind(s_1, s_0), cbind(p_1, p_0, 1 - p))
+        if ("WOMG_S" %in% method) {
+          stat[v, "WOMG_S"] <- compute_WOMG(s, p)
+        }
+        if ("GBT_S" %in% method) {
+          stat[v, "GBT_S"] <- compute_GBT(s, p)
+        }
+        if ("M4_S" %in% method) {
+          if ("b" %in% colnames(psi)) {
+            s_1 <- as.integer((x[pair[v, 1], ] == 1) & (x[pair[v, 2], ] == 1))
+            p_1 <- p_mat[pair[v, 1], , 2] * p_mat[pair[v, 2], , 2]
+          } else {
+            s_1 <- as.integer((x[pair[v, 1], ] == (m - 1)) &
+                                (x[pair[v, 2], ] == (m - 1)))
+            p_1 <- rep(NA, times = n)
+            for (i in 1:n) {
+              p_1[i] <- p_mat[pair[v, 1], i, m[i]] * p_mat[pair[v, 2], i, m[i]]
+            }
+          }
+          s_0 <- s - s_1
+          p_0 <- p - p_1
+          stat[v, "M4_S"] <- compute_M4(s_1, s_0, p_1, p_0, 1 - p)
+        }
       }
     }
   }
@@ -308,25 +311,28 @@ detect_as <- function(method,
     p_mat <- irt_p(m, psi, xi)
     for (v in 1:NN) {
       s <- as.integer(r[pair[v, 1], ] == r[pair[v, 2], ])
-      p <- rowSums(p_mat[pair[v, 1], , ] * p_mat[pair[v, 2], , ], na.rm = TRUE)
-      if ("OMG_R" %in% method) {
-        stat[v, "OMG_R"] <- compute_OMG(s, p)
-      }
-      if ("WOMG_R" %in% method) {
-        stat[v, "WOMG_R"] <- compute_WOMG(s, p)
-      }
-      if ("GBT_R" %in% method) {
-        stat[v, "GBT_R"] <- compute_GBT(s, p)
-      }
-      if ("M4_R" %in% method) {
-        s_1 <- as.integer((r[pair[v, 1], ] == m) & (r[pair[v, 2], ] == m))
-        p_1 <- rep(NA, times = n)
-        for (i in 1:n) {
-          p_1[i] <- p_mat[pair[v, 1], i, m[i]] * p_mat[pair[v, 2], i, m[i]]
+      if (all(!is.na(s))) {
+        p <-
+          rowSums(p_mat[pair[v, 1], , ] * p_mat[pair[v, 2], , ], na.rm = TRUE)
+        if ("OMG_R" %in% method) {
+          stat[v, "OMG_R"] <- compute_OMG(s, p)
         }
-        s_0 <- s - s_1
-        p_0 <- p - p_1
-        stat[v, "M4_R"] <- compute_M4(cbind(s_1, s_0), cbind(p_1, p_0, 1 - p))
+        if ("WOMG_R" %in% method) {
+          stat[v, "WOMG_R"] <- compute_WOMG(s, p)
+        }
+        if ("GBT_R" %in% method) {
+          stat[v, "GBT_R"] <- compute_GBT(s, p)
+        }
+        if ("M4_R" %in% method) {
+          s_1 <- as.integer((r[pair[v, 1], ] == m) & (r[pair[v, 2], ] == m))
+          p_1 <- rep(NA, times = n)
+          for (i in 1:n) {
+            p_1[i] <- p_mat[pair[v, 1], i, m[i]] * p_mat[pair[v, 2], i, m[i]]
+          }
+          s_0 <- s - s_1
+          p_0 <- p - p_1
+          stat[v, "M4_R"] <- compute_M4(s_1, s_0, p_1, p_0, 1 - p)
+        }
       }
     }
   }
@@ -340,13 +346,15 @@ detect_as <- function(method,
       s <- as.integer((x[pair[v, 1], ] == x[pair[v, 2], ]) &
                         (y[pair[v, 1], ] < mu[pair[v, 1], ]) &
                         (y[pair[v, 2], ] < mu[pair[v, 2], ]))
-      p <- 0.25 *
-        rowSums(p_mat[pair[v, 1], , ] * p_mat[pair[v, 2], , ], na.rm = TRUE)
-      if ("OMG_ST" %in% method) {
-        stat[v, "OMG_ST"] <- compute_OMG(s, p)
-      }
-      if ("GBT_ST" %in% method) {
-        stat[v, "GBT_ST"] <- compute_GBT(s, p)
+      if (all(!is.na(s))) {
+        p <- 0.25 *
+          rowSums(p_mat[pair[v, 1], , ] * p_mat[pair[v, 2], , ], na.rm = TRUE)
+        if ("OMG_ST" %in% method) {
+          stat[v, "OMG_ST"] <- compute_OMG(s, p)
+        }
+        if ("GBT_ST" %in% method) {
+          stat[v, "GBT_ST"] <- compute_GBT(s, p)
+        }
       }
     }
   }
@@ -360,13 +368,15 @@ detect_as <- function(method,
       s <- as.integer((r[pair[v, 1], ] == r[pair[v, 2], ]) &
                         (y[pair[v, 1], ] < mu[pair[v, 1], ]) &
                         (y[pair[v, 2], ] < mu[pair[v, 2], ]))
-      p <- 0.25 *
-        rowSums(p_mat[pair[v, 1], , ] * p_mat[pair[v, 2], , ], na.rm = TRUE)
-      if ("OMG_RT" %in% method) {
-        stat[v, "OMG_RT"] <- compute_OMG(s, p)
-      }
-      if ("GBT_RT" %in% method) {
-        stat[v, "GBT_RT"] <- compute_GBT(s, p)
+      if (all(!is.na(s))) {
+        p <- 0.25 *
+          rowSums(p_mat[pair[v, 1], , ] * p_mat[pair[v, 2], , ], na.rm = TRUE)
+        if ("OMG_RT" %in% method) {
+          stat[v, "OMG_RT"] <- compute_OMG(s, p)
+        }
+        if ("GBT_RT" %in% method) {
+          stat[v, "GBT_RT"] <- compute_GBT(s, p)
+        }
       }
     }
   }

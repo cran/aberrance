@@ -57,7 +57,7 @@ check_par <- function(data, psi, xi = NULL) {
       }
     }
   }
-  if (("d" %in% data )|| ("r" %in% data)) {
+  if (("d" %in% data ) || ("r" %in% data)) {
     if (sum(grepl("lambda", colnames(psi))) !=
         sum(grepl("zeta", colnames(psi)))) {
       stop("`psi` must contain equal numbers of lambdas and zetas.",
