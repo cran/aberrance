@@ -9,7 +9,6 @@ detect_pm(
   psi,
   xi = NULL,
   x = NULL,
-  d = NULL,
   r = NULL,
   y = NULL,
   interval = c(-4, 4),
@@ -26,17 +25,6 @@ known as \eqn{\zeta_1} (Tatsuoka, 1984; see also Sinharay, 2018b).
 known as \eqn{\zeta_2} (Tatsuoka, 1984; see also Sinharay, 2018b).
 \item \code{"L_S_*"} for the standardized log-likelihood statistic (Drasgow et al.,
 1985).
-}
-
-Options for distractor-based statistics are:
-\itemize{
-\item \code{"L_D_*"} for the standardized log-likelihood statistic (Gorney &
-Wollack, 2023).
-}
-
-Options for score and distractor-based statistics are:
-\itemize{
-\item \code{"L_SD_*"} for the log-likelihood statistic (Gorney & Wollack, 2023).
 }
 
 Options for response-based statistics are:
@@ -86,13 +74,16 @@ Sinharay, 2016a, 2016b).
 Sinharay, & Eckerly, 2024; see also Gorney, 2024).
 }}
 
-\item{psi}{A matrix of item parameters.}
+\item{psi}{A matrix of item parameters. Rows correspond to items and columns
+to parameters.}
 
-\item{xi}{A matrix of person parameters. If \code{NULL} (default), person
-parameters are estimated using maximum likelihood estimation.}
+\item{xi}{A matrix of person parameters. Rows correspond to persons and
+columns to parameters. If \code{NULL} (default), person parameters are estimated
+using maximum likelihood estimation.}
 
-\item{x, d, r, y}{Matrices of raw data. \code{x} is for the item scores, \code{d} the item
-distractors, \code{r} the item responses, and \code{y} the item log response times.}
+\item{x, r, y}{Matrices of raw data. Rows correspond to persons and columns to
+items. \code{x} is for the item scores, \code{r} the item responses, and \code{y} the item
+log response times.}
 
 \item{interval}{The interval to search for the person parameters. Default is
 \code{c(-4, 4)}.}
@@ -112,7 +103,7 @@ significance levels.}
 Detect parametric misfit using person-fit statistics.
 }
 \examples{
-# Setup for Examples 1 and 2 ------------------------------------------------
+# Setup for Example ---------------------------------------------------------
 
 # Settings
 set.seed(0)     # seed for reproducibility
@@ -126,7 +117,7 @@ ci <- sample(1:n, size = n * 0.40)
 # Create vector of indicators (1 = misfitting, 0 = fitting)
 ind <- ifelse(1:N \%in\% cv, 1, 0)
 
-# Example 1: Item Scores and Response Times ---------------------------------
+# Example: Item Scores and Response Times -----------------------------------
 
 # Generate person parameters for the 3PL model and lognormal model
 xi <- MASS::mvrnorm(
@@ -168,33 +159,6 @@ out <- detect_pm(
   x = x,
   y = y
 )
-
-# Example 2: Polytomous Item Scores -----------------------------------------
-
-# Generate person parameters for the generalized partial credit model
-xi <- cbind(theta = rnorm(N, mean = 0.00, sd = 1.00))
-
-# Generate item parameters for the generalized partial credit model
-psi <- cbind(
-  a = rlnorm(n, meanlog = 0.00, sdlog = 0.25),
-  c0 = 0,
-  c1 = rnorm(n, mean = -1.00, sd = 0.50),
-  c2 = rnorm(n, mean = 0.00, sd = 0.50),
-  c3 = rnorm(n, mean = 1.00, sd = 0.50)
-)
-
-# Simulate uncontaminated data
-x <- sim(psi, xi)$x
-
-# Modify contaminated data by changing the item scores to the maximum score
-x[cv, ci] <- 3
-
-# Detect parametric misfit
-out <- detect_pm(
-  method = c("ECI2_S_TSCF", "ECI4_S_TSCF", "L_S_TSCF"),
-  psi = psi,
-  x = x
-)
 }
 \references{
 Bedrick, E. J. (1997). Approximating the conditional distribution of person
@@ -215,9 +179,6 @@ standardized person-fit statistics. \emph{Psychometrika}, \emph{89}(2), 569--591
 Gorney, K., Sinharay, S., & Liu, X. (2024). Using item scores and response
 times in person-fit assessment. \emph{British Journal of Mathematical and
 Statistical Psychology}, \emph{77}(1), 151--168.
-
-Gorney, K., & Wollack, J. A. (2023). Using item scores and distractors in
-person-fit assessment. \emph{Journal of Educational Measurement}, \emph{60}(1), 3--27.
 
 Molenaar, I. W., & Hoijtink, H. (1990). The many null distributions of person
 fit indices. \emph{Psychometrika}, \emph{55}(1), 75--106.

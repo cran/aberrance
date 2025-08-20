@@ -13,8 +13,8 @@
 #'   - `"GBT_R"` for the conditional \eqn{GBT} statistic (van der Linden &
 #'     Sotaridona, 2006).
 #'
-#' @param x,r Matrices of raw data. `x` is for the item scores and `r` the item
-#'   responses.
+#' @param x,r Matrices of raw data. Rows correspond to persons and columns to
+#'   items. `x` is for the item scores and `r` the item responses.
 #'
 #' @inheritParams detect_pm
 #'
@@ -122,14 +122,18 @@
 detect_ac <- function(method,
                       psi,
                       xi = NULL,
-                      x = NULL, r = NULL,
+                      x = NULL,
+                      r = NULL,
                       interval = c(-4, 4),
                       alpha = 0.05) {
 
   # Checks
   if (any("S" %in% extract(method, 2)) && ("R" %in% extract(method, 2))) {
-    stop("`method` may contain either score-based statistics or ",
-         "response-based statistics, but not both.", call. = FALSE)
+    stop(
+      "`method` may contain either score-based statistics or response-based ",
+      "statistics, but not both.",
+      call. = FALSE
+    )
   }
   if (any("S" %in% extract(method, 2))) {
     check_par("x", psi, xi)
@@ -150,7 +154,8 @@ detect_ac <- function(method,
   NN <- nrow(pair)
   pair <- rbind(pair, pair[, 2:1])
   stat <- pval <- matrix(
-    nrow = NN * 2, ncol = length(method),
+    nrow = NN * 2,
+    ncol = length(method),
     dimnames = list(
       pair = paste(pair[, 1], pair[, 2], sep = "-"),
       method = method

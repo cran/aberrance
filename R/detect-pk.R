@@ -15,11 +15,11 @@
 #'     `cutoff`. *Note:* This statistic cannot be computed under the 3PL model
 #'     or the graded response model.
 #'   - `"S_S"` for the signed score test statistic (Sinharay, 2017).
-#'   - `"W_S"` for the Wald test statistic (Sinharay & Jensen, 2019).
+#'   - `"W_S"` for the signed Wald test statistic (Sinharay & Jensen, 2019).
 #'
 #'   Options for response time-based statistics are:
-#'   - `"L_T"` for the signed likelihood ratio test statistic, or equivalently,
-#'     `"W_T"` for the Wald test statistic (Sinharay, 2020).
+#'   - `"L_T"` for the signed likelihood ratio test statistic (Sinharay, 2020).
+#'   - `"W_T"` for the signed Wald test statistic (Sinharay, 2020).
 #'
 #'   Options for score and response time-based statistics are:
 #'   - `"L_ST"` for the constrained likelihood ratio test statistic (Sinharay &
@@ -28,13 +28,14 @@
 #' @param ci A vector of compromised item positions. All other items are
 #'   presumed secure.
 #'
-#' @param xi,xi_c,xi_s Matrices of person parameters. `xi` is based on all
-#'   items, `xi_c` is based on the compromised items, and `xi_s` is based on the
-#'   secure items. If `NULL` (default), person parameters are estimated using
-#'   maximum likelihood estimation.
+#' @param xi,xi_c,xi_s Matrices of person parameters. Rows correspond to persons
+#'   and columns to parameters. `xi` is based on all items, `xi_c` is based on
+#'   the compromised items, and `xi_s` is based on the secure items. If `NULL`
+#'   (default), person parameters are estimated using maximum likelihood
+#'   estimation.
 #'
-#' @param x,y Matrices of raw data. `x` is for the item scores and `y` the item
-#'   log response times.
+#' @param x,y Matrices of raw data. Rows correspond to persons and columns to
+#'   items. `x` is for the item scores and `y` the item log response times.
 #'
 #' @param cutoff Use with the modified signed likelihood ratio test statistic
 #'   and the Lugannani-Rice approximation. If the absolute value of the signed
@@ -73,7 +74,7 @@
 #' @seealso [detect_as()] to detect answer similarity.
 #'
 #' @examples
-#' # Setup for Examples 1 and 2 ------------------------------------------------
+#' # Setup for Example ---------------------------------------------------------
 #'
 #' # Settings
 #' set.seed(0)     # seed for reproducibility
@@ -87,7 +88,7 @@
 #' # Create vector of indicators (1 = preknowledge, 0 = no preknowledge)
 #' ind <- ifelse(1:N %in% cv, 1, 0)
 #'
-#' # Example 1: Item Scores and Response Times ---------------------------------
+#' # Example: Item Scores and Response Times -----------------------------------
 #'
 #' # Generate person parameters for the 2PL model and lognormal model
 #' xi <- MASS::mvrnorm(
@@ -130,41 +131,16 @@
 #'   x = x,
 #'   y = y
 #' )
-#'
-#' # Example 2: Polytomous Item Scores -----------------------------------------
-#'
-#' # Generate person parameters for the generalized partial credit model
-#' xi <- cbind(theta = rnorm(N, mean = 0.00, sd = 1.00))
-#'
-#' # Generate item parameters for the generalized partial credit model
-#' psi <- cbind(
-#'   a = rlnorm(n, meanlog = 0.00, sdlog = 0.25),
-#'   c0 = 0,
-#'   c1 = rnorm(n, mean = -1.00, sd = 0.50),
-#'   c2 = rnorm(n, mean = 0.00, sd = 0.50),
-#'   c3 = rnorm(n, mean = 1.00, sd = 0.50)
-#' )
-#'
-#' # Simulate uncontaminated data
-#' x <- sim(psi, xi)$x
-#'
-#' # Modify contaminated data by changing the item scores to the maximum score
-#' x[cv, ci] <- 3
-#'
-#' # Detect preknowledge
-#' out <- detect_pk(
-#'   method = c("L_S", "ML_S", "LR_S", "S_S", "W_S"),
-#'   ci = ci,
-#'   psi = psi,
-#'   x = x
-#' )
 #' @export
 
 detect_pk <- function(method,
                       ci,
                       psi,
-                      xi = NULL, xi_c = NULL, xi_s = NULL,
-                      x = NULL, y = NULL,
+                      xi = NULL,
+                      xi_c = NULL,
+                      xi_s = NULL,
+                      x = NULL,
+                      y = NULL,
                       interval = c(-4, 4),
                       alpha = 0.05,
                       cutoff = 0.05) {
@@ -182,8 +158,11 @@ detect_pk <- function(method,
       if ((("b" %in% colnames(psi)) && any(psi[, "c"] > 0)) ||
           ("b1" %in% colnames(psi))) {
         method <- setdiff(method, c("ML_S", "LR_S"))
-        warning("The ML_S and LR_S statistics cannot be computed under the ",
-                "3PL model or the graded response model.", call. = FALSE)
+        warning(
+          "The ML_S and LR_S statistics cannot be computed under the 3PL ",
+          "model or the graded response model.",
+          call. = FALSE
+        )
       }
     }
   }
@@ -201,7 +180,8 @@ detect_pk <- function(method,
   N <- max(nrow(x), nrow(y))
   n <- max(ncol(x), ncol(y))
   stat <- pval <- matrix(
-    nrow = N, ncol = length(method),
+    nrow = N,
+    ncol = length(method),
     dimnames = list(
       person = 1:N,
       method = method
@@ -244,74 +224,116 @@ detect_pk <- function(method,
     p1_0 <- irt_p1(p_0, m, psi, xi, ignore = "lambda1")
     if (any(c("L_S", "ML_S", "LR_S", "L_ST") %in% method)) {
       p_1 <- p_0
-      p_1[, ci, ] <- irt_p(m[ci], psi[ci, , drop = FALSE], xi_c,
-                           ignore = "lambda1")
-      p_1[, si, ] <- irt_p(m[si], psi[si, , drop = FALSE], xi_s,
-                           ignore = "lambda1")
-      L_S <- compute_L(x, p_0, p_1, xi_c[, "theta"], xi_s[, "theta"])
+      p_1[, ci, ] <- irt_p(
+        m[ci],
+        psi[ci, , drop = FALSE],
+        xi_c,
+        ignore = "lambda1"
+      )
+      p_1[, si, ] <- irt_p(
+        m[si],
+        psi[si, , drop = FALSE],
+        xi_s,
+        ignore = "lambda1"
+      )
+      L_S <- compute_L_S(
+        x,
+        p_0,
+        p_1,
+        xi_c[, "theta"],
+        xi_s[, "theta"],
+        signed = TRUE
+      )
       if ("L_S" %in% method) {
         stat[, "L_S"] <- L_S
       }
       if (any(c("ML_S", "LR_S") %in% method)) {
         p1_1 <- p1_0
-        p1_1[, ci, ] <- irt_p1(p_1[, ci, , drop = FALSE], m[ci],
-                               psi[ci, , drop = FALSE], xi_c,
-                               ignore = "lambda1")
-        p1_1[, si, ] <- irt_p1(p_1[, si, , drop = FALSE], m[si],
-                               psi[si, , drop = FALSE], xi_s,
-                               ignore = "lambda1")
+        p1_1[, ci, ] <- irt_p1(
+          p_1[, ci, , drop = FALSE],
+          m[ci],
+          psi[ci, , drop = FALSE],
+          xi_c,
+          ignore = "lambda1"
+        )
+        p1_1[, si, ] <- irt_p1(
+          p_1[, si, , drop = FALSE],
+          m[si],
+          psi[si, , drop = FALSE],
+          xi_s,
+          ignore = "lambda1"
+        )
         num <- irt_info(p_1[, ci, , drop = FALSE], p1_1[, ci, , drop = FALSE]) *
           irt_info(p_1[, si, , drop = FALSE], p1_1[, si, , drop = FALSE])
         den <- irt_info(p_0[, ci, , drop = FALSE], p1_0[, ci, , drop = FALSE]) +
           irt_info(p_0[, si, , drop = FALSE], p1_0[, si, , drop = FALSE])
         q <- (xi_c[, "theta"] - xi_s[, "theta"]) * sqrt(num / den)
         if ("ML_S" %in% method) {
-          stat[, "ML_S"] <- ifelse(abs(L_S) < cutoff, L_S,
-                                   L_S + log(q / L_S) / L_S)
+          stat[, "ML_S"] <- ifelse(
+            abs(L_S) < cutoff,
+            L_S,
+            L_S + log(q / L_S) / L_S
+          )
         }
         if ("LR_S" %in% method) {
-          stat[, "LR_S"] <- ifelse(abs(L_S) < cutoff, pnorm(L_S),
-                                   pnorm(L_S) + (1 / L_S - 1 / q) * dnorm(L_S))
+          stat[, "LR_S"] <- ifelse(
+            abs(L_S) < cutoff,
+            pnorm(L_S),
+            pnorm(L_S) + (1 / L_S - 1 / q) * dnorm(L_S)
+          )
         }
       }
     }
-    if (any(c("S_S", "W_S") %in% method)) {
-      info_c <- irt_info(p_0[, ci, , drop = FALSE], p1_0[, ci, , drop = FALSE])
-      info_s <- irt_info(p_0[, si, , drop = FALSE], p1_0[, si, , drop = FALSE])
-      if ("S_S" %in% method) {
-        l1_c <- irt_l1(
-          x[, ci, drop = FALSE],
-          p_0[, ci, , drop = FALSE],
-          p1_0[, ci, , drop = FALSE]
-        )
-        l1_s <- irt_l1(
-          x[, si, drop = FALSE],
-          p_0[, si, , drop = FALSE],
-          p1_0[, si, , drop = FALSE]
-        )
-        S <- rowSums(l1_c)^2 / info_c + rowSums(l1_s)^2 / info_s
-        stat[, "S_S"] <- sign(xi_c[, "theta"] - xi_s[, "theta"]) * sqrt(S)
-      }
-      if ("W_S" %in% method) {
-        stat[, "W_S"] <- (xi_c[, "theta"] - xi_s[, "theta"]) /
-          sqrt(1 / info_c + 1 / info_s)
-      }
+    if ("S_S" %in% method) {
+      stat[, "S_S"] <- compute_S_S(
+        ci,
+        si,
+        x,
+        p_0,
+        p1_0,
+        xi_c[, "theta"],
+        xi_s[, "theta"],
+        signed = TRUE
+      )
+    }
+    if ("W_S" %in% method) {
+      stat[, "W_S"] <- compute_W_S(
+        ci,
+        si,
+        p_0,
+        p1_0,
+        xi_c[, "theta"],
+        xi_s[, "theta"],
+        signed = TRUE
+      )
     }
   }
 
   # Compute response time-based statistics
-  if (any(c("L_T", "W_T", "L_ST") %in% method)) {
-    Lambda_T <- xi_c[, "tau"]^2 * sum(psi[ci, "alpha"]^2) +
-      xi_s[, "tau"]^2 * sum(psi[si, "alpha"]^2) -
-      xi[, "tau"]^2 * sum(psi[, "alpha"]^2)
-    Lambda_T[Lambda_T < 0] <- 0
-    L_T <- sign(xi_c[, "tau"] - xi_s[, "tau"]) * sqrt(Lambda_T)
+  if (any(c("L_T", "L_ST") %in% method)) {
+    L_T <- compute_L_T(
+      ci,
+      si,
+      y,
+      psi,
+      xi[, "tau"],
+      xi_c[, "tau"],
+      xi_s[, "tau"],
+      signed = TRUE
+    )
     if ("L_T" %in% method) {
       stat[, "L_T"] <- L_T
     }
-    if ("W_T" %in% method) {
-      stat[, "W_T"] <- L_T
-    }
+  }
+  if ("W_T" %in% method) {
+    stat[, "W_T"] <- compute_W_T(
+      ci,
+      si,
+      psi,
+      xi_c[, "tau"],
+      xi_s[, "tau"],
+      signed = TRUE
+    )
   }
 
   # Compute score and response time-based statistics

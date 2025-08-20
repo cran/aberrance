@@ -23,19 +23,16 @@
 #'
 #'   Options for score and response time-based statistics are:
 #'   - `"OMG_ST"` for the unconditional \eqn{\omega} statistic (Gorney &
-#'     Wollack, 2024).
+#'     Wollack, 2025).
 #'   - `"GBT_ST"` for the unconditional \eqn{GBT} statistic (Gorney & Wollack,
-#'     2024).
+#'     2025).
 #'
 #'   Options for response and response time-based statistics are:
 #'   - `"OMG_RT"` for the unconditional \eqn{\omega} statistic (Gorney &
-#'     Wollack, 2024).
+#'     Wollack, 2025).
 #'   - `"GBT_RT"` for the unconditional \eqn{GBT} statistic (Gorney & Wollack,
-#'     2024).
+#'     2025).
 #'
-#' @param x,r,y Matrices of raw data. `x` is for the item scores, `r` the item
-#'   responses, and `y` the item log response times.
-#'   
 #' @inheritParams detect_pm
 #'
 #' @returns A list is returned with the following elements:
@@ -46,9 +43,9 @@
 #'   significance levels.}
 #'
 #' @references
-#' Gorney, K., & Wollack, J. A. (2024). Using response times in answer
-#' similarity analysis. *Journal of Educational and Behavioral Statistics*.
-#' Advance online publication.
+#' Gorney, K., & Wollack, J. A. (2025). Using response times in answer
+#' similarity analysis. *Journal of Educational and Behavioral Statistics*,
+#' *50*(3), 449--470.
 #'
 #' Maynes, D. (2014). Detection of non-independent test taking by similarity
 #' analysis. In N. M. Kingston & A. K. Clark (Eds.), *Test fraud: Statistical
@@ -71,7 +68,7 @@
 #' [detect_pk()] to detect preknowledge.
 #'
 #' @examples
-#' # Setup for Examples 1 and 2 ------------------------------------------------
+#' # Setup for Example 1 -------------------------------------------------------
 #'
 #' # Settings
 #' set.seed(0)     # seed for reproducibility
@@ -130,34 +127,7 @@
 #'   y = y
 #' )
 #'
-#' # Example 2: Polytomous Item Scores -----------------------------------------
-#'
-#' # Generate person parameters for the generalized partial credit model
-#' xi <- cbind(theta = rnorm(N, mean = 0.00, sd = 1.00))
-#'
-#' # Generate item parameters for the generalized partial credit model
-#' psi <- cbind(
-#'   a = rlnorm(n, meanlog = 0.00, sdlog = 0.25),
-#'   c0 = 0,
-#'   c1 = rnorm(n, mean = -1.00, sd = 0.50),
-#'   c2 = rnorm(n, mean = 0.00, sd = 0.50),
-#'   c3 = rnorm(n, mean = 1.00, sd = 0.50)
-#' )
-#'
-#' # Simulate uncontaminated data
-#' x <- sim(psi, xi)$x
-#'
-#' # Modify contaminated data by changing the item scores to the maximum score
-#' x[cv, ci] <- 3
-#'
-#' # Detect answer similarity
-#' out <- detect_as(
-#'   method = c("OMG_S", "WOMG_S", "GBT_S"),
-#'   psi = psi,
-#'   x = x
-#' )
-#'
-#' # Setup for Example 3 -------------------------------------------------------
+#' # Setup for Example 2 -------------------------------------------------------
 #'
 #' # Settings
 #' set.seed(0)     # seed for reproducibility
@@ -175,7 +145,7 @@
 #'   which(pair[, 1] == p[1] & pair[, 2] == p[2])), 1, 0)
 #' names(ind) <- paste(pair[, 1], pair[, 2], sep = "-")
 #'
-#' # Example 3: Item Responses -------------------------------------------------
+#' # Example 2: Item Responses -------------------------------------------------
 #'
 #' # Generate person parameters for the nominal response model
 #' xi <- cbind(eta = rnorm(N, mean = 0.00, sd = 1.00))
@@ -213,15 +183,20 @@
 detect_as <- function(method,
                       psi,
                       xi = NULL,
-                      x = NULL, r = NULL, y = NULL,
+                      x = NULL,
+                      r = NULL,
+                      y = NULL,
                       interval = c(-4, 4),
                       alpha = 0.05) {
 
   # Checks
   if (any(c("S", "ST") %in% extract(method, 2)) &&
       any(c("R", "RT") %in% extract(method, 2))) {
-    stop("`method` may contain either score-based statistics or ",
-         "response-based statistics, but not both.", call. = FALSE)
+    stop(
+      "`method` may contain either score-based statistics or response-based ",
+      "statistics, but not both.",
+      call. = FALSE
+    )
   }
   if (any(c("S", "ST") %in% extract(method, 2))) {
     check_par("x", psi, xi)
@@ -233,10 +208,12 @@ detect_as <- function(method,
   }
   method <- match.arg(
     arg = unique(method),
-    choices = c("OMG_S", "WOMG_S", "GBT_S", "M4_S",
-                "OMG_R", "WOMG_R", "GBT_R", "M4_R",
-                "OMG_ST", "GBT_ST",
-                "OMG_RT", "GBT_RT"),
+    choices = c(
+      "OMG_S", "WOMG_S", "GBT_S", "M4_S",
+      "OMG_R", "WOMG_R", "GBT_R", "M4_R",
+      "OMG_ST", "GBT_ST",
+      "OMG_RT", "GBT_RT"
+    ),
     several.ok = TRUE
   )
   check_data(x, r, y)
@@ -247,7 +224,8 @@ detect_as <- function(method,
   pair <- t(combn(N, 2))
   NN <- nrow(pair)
   stat <- pval <- matrix(
-    nrow = NN, ncol = length(method),
+    nrow = NN,
+    ncol = length(method),
     dimnames = list(
       pair = paste(pair[, 1], pair[, 2], sep = "-"),
       method = method
@@ -343,9 +321,11 @@ detect_as <- function(method,
     p_mat <- irt_p(m, psi, xi, ignore = "lambda1")
     mu <- t(outer(psi[, "beta"], xi[, "tau"], "-"))
     for (v in 1:NN) {
-      s <- as.integer((x[pair[v, 1], ] == x[pair[v, 2], ]) &
-                        (y[pair[v, 1], ] < mu[pair[v, 1], ]) &
-                        (y[pair[v, 2], ] < mu[pair[v, 2], ]))
+      s <- pmin(
+        x[pair[v, 1], ] == x[pair[v, 2], ],
+        y[pair[v, 1], ] < mu[pair[v, 1], ],
+        y[pair[v, 2], ] < mu[pair[v, 2], ]
+      )
       if (all(!is.na(s))) {
         p <- 0.25 *
           rowSums(p_mat[pair[v, 1], , ] * p_mat[pair[v, 2], , ], na.rm = TRUE)
@@ -365,9 +345,11 @@ detect_as <- function(method,
     p_mat <- irt_p(m, psi, xi)
     mu <- t(outer(psi[, "beta"], xi[, "tau"], "-"))
     for (v in 1:NN) {
-      s <- as.integer((r[pair[v, 1], ] == r[pair[v, 2], ]) &
-                        (y[pair[v, 1], ] < mu[pair[v, 1], ]) &
-                        (y[pair[v, 2], ] < mu[pair[v, 2], ]))
+      s <- pmin(
+        r[pair[v, 1], ] == r[pair[v, 2], ],
+        y[pair[v, 1], ] < mu[pair[v, 1], ],
+        y[pair[v, 2], ] < mu[pair[v, 2], ]
+      )
       if (all(!is.na(s))) {
         p <- 0.25 *
           rowSums(p_mat[pair[v, 1], , ] * p_mat[pair[v, 2], , ], na.rm = TRUE)

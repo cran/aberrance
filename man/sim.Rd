@@ -7,9 +7,11 @@
 sim(psi, xi)
 }
 \arguments{
-\item{psi}{A matrix of item parameters.}
+\item{psi}{A matrix of item parameters. Rows correspond to items and columns
+to parameters.}
 
-\item{xi}{A matrix of person parameters.}
+\item{xi}{A matrix of person parameters. Rows correspond to persons and
+columns to parameters.}
 }
 \value{
 A list is returned. Possible elements include:
@@ -19,7 +21,8 @@ A list is returned. Possible elements include:
 \item{y}{A matrix of item log response times.}
 }
 \description{
-Simulate data using item response theory (IRT) models.
+Simulate data using item response theory (IRT) and response time
+(RT) models.
 }
 \section{Models for Item Scores}{
 The \strong{Rasch}, \strong{2PL}, and \strong{3PL models} (Birnbaum, 1968; Rasch, 1960) are

@@ -30,16 +30,19 @@
 #'     using `c`.
 #'   - `"TS"` for the Taylor series expansion (Sinharay, 2018).
 #'
-#' @param xi,xi_c,xi_s Matrices of person parameters. `xi` is based on all
-#'   items, `xi_c` is based on items with changed answers, and `xi_s` is based
-#'   on items with the same answers. If `NULL` (default), person parameters are
-#'   estimated using maximum likelihood estimation.
+#' @param xi,xi_c,xi_s Matrices of person parameters. Rows correspond to persons
+#'   and columns to parameters. `xi` is based on all items, `xi_c` is based on
+#'   items with changed answers, and `xi_s` is based on items with the same
+#'   answers. If `NULL` (default), person parameters are estimated using maximum
+#'   likelihood estimation.
 #'
-#' @param x,d,r Matrices of final data. `x` is for the item scores, `d` the item
-#'   distractors, and `r` the item responses.
+#' @param x,d,r Matrices of final data. Rows correspond to persons and columns
+#'   to items. `x` is for the item scores, `d` the item distractors, and `r` the
+#'   item responses.
 #'
-#' @param x_0,d_0,r_0 Matrices of initial data. `x_0` is for the item scores,
-#'   `d_0` the item distractors, and `r_0` the item responses.
+#' @param x_0,d_0,r_0 Matrices of initial data. Rows correspond to persons and
+#'   columns to items. `x_0` is for the item scores, `d_0` the item distractors,
+#'   and `r_0` the item responses.
 #'
 #' @param group A vector indicating group membership. If `NULL` (default),
 #'   statistics are computed at the person level.
@@ -171,9 +174,15 @@
 
 detect_tt <- function(method,
                       psi,
-                      xi = NULL, xi_c = NULL, xi_s = NULL,
-                      x = NULL, d = NULL, r = NULL,
-                      x_0 = NULL, d_0 = NULL, r_0 = NULL,
+                      xi = NULL,
+                      xi_c = NULL,
+                      xi_s = NULL,
+                      x = NULL,
+                      d = NULL,
+                      r = NULL,
+                      x_0 = NULL,
+                      d_0 = NULL,
+                      r_0 = NULL,
                       interval = c(-4, 4),
                       alpha = 0.05,
                       group = NULL,
@@ -185,17 +194,23 @@ detect_tt <- function(method,
     for (m in method) {
       if (extract(m, 3) == "*") {
         if (is.null(group)) {
-          tmp <- c(tmp, paste(
-            extract(m, 1:2),
-            c("NO", "CO"),
-            sep = "_"
-          ))
+          tmp <- c(
+            tmp,
+            paste(
+              extract(m, 1:2),
+              c("NO", "CO"),
+              sep = "_"
+            )
+          )
         } else {
-          tmp <- c(tmp, paste(
-            extract(m, 1:2),
-            c("NO", "CO", "TS"),
-            sep = "_"
-          ))
+          tmp <- c(
+            tmp,
+            paste(
+              extract(m, 1:2),
+              c("NO", "CO", "TS"),
+              sep = "_"
+            )
+          )
         }
       } else {
         tmp <- c(tmp, m)
@@ -204,27 +219,36 @@ detect_tt <- function(method,
     method <- tmp
   }
   if (any("SD" %in% extract(method, 2)) && any("R" %in% extract(method, 2))) {
-    stop("`method` may contain either score and distractor-based statistics ",
-         "or response-based statistics, but not both.", call. = FALSE)
+    stop(
+      "`method` may contain either score and distractor-based statistics or ",
+      "response-based statistics, but not both.",
+      call. = FALSE
+    )
   }
   if (any("SD" %in% extract(method, 2))) {
-    check_par(c("x", "d"), psi)
+    check_par("x", psi)
     if (is.null(group)) {
       if ("EDI_SD_TS" %in% method) {
         method <- setdiff(method, "EDI_SD_TS")
-        warning("The EDI_SD_TS statistic cannot be computed at the person ",
-                "level.", call. = FALSE)
+        warning(
+          "The EDI_SD_TS statistic cannot be computed at the person level.",
+          call. = FALSE
+        )
       }
     } else {
       if ("GBT_SD" %in% method) {
         method <- setdiff(method, "GBT_SD")
-        warning("The GBT_SD statistic cannot be computed at the group level.",
-                call. = FALSE)
+        warning(
+          "The GBT_SD statistic cannot be computed at the group level.",
+          call. = FALSE
+        )
       }
       if ("L_SD" %in% method) {
         method <- setdiff(method, "L_SD")
-        warning("The L_SD statistic cannot be computed at the group level.",
-                call. = FALSE)
+        warning(
+          "The L_SD statistic cannot be computed at the group level.",
+          call. = FALSE
+        )
       }
     }
   } else if (any("R" %in% extract(method, 2))) {
@@ -232,19 +256,25 @@ detect_tt <- function(method,
     if (is.null(group)) {
       if ("EDI_R_TS" %in% method) {
         method <- setdiff(method, "EDI_R_TS")
-        warning("The EDI_R_TS statistic cannot be computed at the person ",
-                "level.", call. = FALSE)
+        warning(
+          "The EDI_R_TS statistic cannot be computed at the person level.",
+          call. = FALSE
+        )
       }
     } else {
       if ("GBT_R" %in% method) {
         method <- setdiff(method, "GBT_R")
-        warning("The GBT_R statistic cannot be computed at the group level.",
-                call. = FALSE)
+        warning(
+          "The GBT_R statistic cannot be computed at the group level.",
+          call. = FALSE
+        )
       }
       if ("L_R" %in% method) {
         method <- setdiff(method, "L_R")
-        warning("The L_R statistic cannot be computed at the group level.",
-                call. = FALSE)
+        warning(
+          "The L_R statistic cannot be computed at the group level.",
+          call. = FALSE
+        )
       }
     }
   }
@@ -266,7 +296,8 @@ detect_tt <- function(method,
       several.ok = TRUE
     )
     stat <- pval <- matrix(
-      nrow = N, ncol = length(method),
+      nrow = N,
+      ncol = length(method),
       dimnames = list(
         person = 1:N,
         method = method
@@ -294,7 +325,8 @@ detect_tt <- function(method,
       several.ok = TRUE
     )
     stat <- pval <- matrix(
-      nrow = N, ncol = length(method),
+      nrow = N,
+      ncol = length(method),
       dimnames = list(
         group = names(table(group)),
         method = method
@@ -312,10 +344,11 @@ detect_tt <- function(method,
   n <- max(ncol(x), ncol(d), ncol(r))
   if ("SD" %in% extract(method, 2)) {
     m <- count(psi, ignore = "lambda1")
-    x_s <- ifelse(((x == 1) & (x_0 == 1)) |
-                    ((x == 0) & (x_0 == 0) & (d == d_0)), x, NA)
-    d_s <- ifelse(((x == 1) & (x_0 == 1)) |
-                    ((x == 0) & (x_0 == 0) & (d == d_0)), d, NA)
+    x_s <- ifelse(
+      ((x == 1) & (x_0 == 1)) | ((x == 0) & (x_0 == 0) & (d == d_0)),
+      x,
+      NA
+    )
     xi_s <- est(interval, psi, x = x_s)
     p_s <- irt_p(m, psi, xi_s, ignore = "lambda1")
   } else {
@@ -347,14 +380,20 @@ detect_tt <- function(method,
     }
     if ("L_SD" %in% method) {
       x_c <- ifelse(is.na(x_s), x, NA)
-      d_c <- ifelse(is.na(x_s), d, NA)
       xi_c <- est(interval, psi, x = x_c)
       p_c <- irt_p(m, psi, xi_c, ignore = "lambda1")
       xi <- est(interval, psi, x = x)
       p_0 <- p_1 <- irt_p(m, psi, xi, ignore = "lambda1")
       p_1[, , 1] <- ifelse(is.na(x_s), p_c[, , 1], p_s[, , 1])
       p_1[, , 2] <- ifelse(is.na(x_s), p_c[, , 2], p_s[, , 2])
-      stat[, "L_SD"] <- compute_L(x, p_0, p_1, xi_c[, "theta"], xi_s[, "theta"])
+      stat[, "L_SD"] <- compute_L_S(
+        x,
+        p_0,
+        p_1,
+        xi_c[, "theta"],
+        xi_s[, "theta"],
+        signed = TRUE
+      )
       stat[which(rowSums(is.na(x_s)) == 0), "L_SD"] <- NA
     }
 
@@ -387,7 +426,14 @@ detect_tt <- function(method,
       for (j in 1:max(m)) {
         p_1[, , j] <- ifelse(is.na(r_s), p_c[, , j], p_s[, , j])
       }
-      stat[, "L_R"] <- compute_L(r - 1, p_0, p_1, xi_c[, "eta"], xi_s[, "eta"])
+      stat[, "L_R"] <- compute_L_S(
+        r - 1,
+        p_0,
+        p_1,
+        xi_c[, "eta"],
+        xi_s[, "eta"],
+        signed = TRUE
+      )
       stat[which(rowSums(is.na(r_s)) == 0), "L_R"] <- NA
     }
 

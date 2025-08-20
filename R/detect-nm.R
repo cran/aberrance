@@ -34,8 +34,8 @@
 #'   Options for response time-based statistics are:
 #'   - `"KL_T"` for the Kullback-Leibler divergence (Man et al., 2018).
 #'
-#' @param x,y Matrices of raw data. `x` is for the item scores and `y` the item
-#'   log response times.
+#' @param x,y Matrices of raw data. Rows correspond to persons and columns to
+#'   items. `x` is for the item scores and `y` the item log response times.
 #'
 #' @returns A list is returned with the following elements:
 #' \item{stat}{A matrix of nonparametric person-fit statistics.}
@@ -178,22 +178,26 @@
 detect_nm <- function(method, x = NULL, y = NULL) {
 
   # Checks
-  if (any(c("G_S", "NC_S", "U1_S", "U3_S", "ZU3_S", "A_S", "D_S", "E_S",
+  if (any(c("NC_S", "ZU3_S", "A_S", "D_S", "E_S",
             "C_S", "MC_S", "PC_S", "HT_S") %in% method)) {
-    if (max(x) > 1 &&
-        any(c("NC_S", "ZU3_S", "A_S", "D_S", "E_S",
-              "C_S", "MC_S", "PC_S", "HT_S") %in% method)) {
-      method <- setdiff(method, c("NC_S", "ZU3_S", "A_S", "D_S", "E_S",
-                                  "C_S", "MC_S", "PC_S", "HT_S"))
-      warning("The NC_S, ZU3_S, A_S, D_S, E_S, C_S, MC_S, PC_S, and HT_S ",
-              "statistics cannot be computed for polytomous item scores.",
-              call. = FALSE)
+    if (max(x) > 1) {
+      method <- setdiff(
+        method,
+        c("NC_S", "ZU3_S", "A_S", "D_S", "E_S", "C_S", "MC_S", "PC_S", "HT_S")
+      )
+      warning(
+        "The NC_S, ZU3_S, A_S, D_S, E_S, C_S, MC_S, PC_S, and HT_S statistics ",
+        "cannot be computed for polytomous item scores.",
+        call. = FALSE
+      )
     }
   }
   method <- match.arg(
     arg = unique(method),
-    choices = c("G_S",  "NC_S", "U1_S", "U3_S", "ZU3_S", "A_S", "D_S", "E_S",
-                "C_S", "MC_S", "PC_S", "HT_S", "KL_T"),
+    choices = c(
+      "G_S",  "NC_S", "U1_S", "U3_S", "ZU3_S", "A_S", "D_S", "E_S",
+      "C_S", "MC_S", "PC_S", "HT_S", "KL_T"
+    ),
     several.ok = TRUE
   )
   check_data(x, y)
@@ -202,7 +206,8 @@ detect_nm <- function(method, x = NULL, y = NULL) {
   N <- max(nrow(x), nrow(y))
   n <- max(ncol(x), ncol(y))
   stat <- matrix(
-    nrow = N, ncol = length(method),
+    nrow = N,
+    ncol = length(method),
     dimnames = list(
       person = 1:N,
       method = method
@@ -247,10 +252,10 @@ detect_nm <- function(method, x = NULL, y = NULL) {
           stat[incl, "U3_S"] <- U3_S
         }
         if ("ZU3_S" %in% method) {
-          A <- sum(p * w) + sum(p * (1 - p) * w) * (s[incl] - sum(p)) /
-            sum(p * (1 - p))
-          B <- sum(p * (1 - p) * w^2) - sum(p * (1 - p) * w)^2 /
-            sum(p * (1 - p))
+          A <- sum(p * w) +
+            sum(p * (1 - p) * w) * (s[incl] - sum(p)) / sum(p * (1 - p))
+          B <- sum(p * (1 - p) * w^2) -
+            sum(p * (1 - p) * w)^2 / sum(p * (1 - p))
           mu <- (W_max - A) / (W_max - W_min)
           sigma <- sqrt(B) / abs(W_max - W_min)
           stat[incl, "ZU3_S"] <- (U3_S - mu) / sigma
@@ -270,8 +275,8 @@ detect_nm <- function(method, x = NULL, y = NULL) {
           stat[incl, "E_S"] <- P / P_max
         }
         if ("C_S" %in% method) {
-          stat[incl, "C_S"] <-
-            (n * P_max - n * P) / (n * P_max - s[incl] * sum(p))
+          stat[incl, "C_S"] <- (n * P_max - n * P) /
+            (n * P_max - s[incl] * sum(p))
         }
         if ("MC_S" %in% method) {
           stat[incl, "MC_S"] <- (P_max - P) / (P_max - P_min)

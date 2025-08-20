@@ -42,26 +42,29 @@ Sotaridona, 2006).
 Options for score and response time-based statistics are:
 \itemize{
 \item \code{"OMG_ST"} for the unconditional \eqn{\omega} statistic (Gorney &
-Wollack, 2024).
+Wollack, 2025).
 \item \code{"GBT_ST"} for the unconditional \eqn{GBT} statistic (Gorney & Wollack,
-2024).
+2025).
 }
 
 Options for response and response time-based statistics are:
 \itemize{
 \item \code{"OMG_RT"} for the unconditional \eqn{\omega} statistic (Gorney &
-Wollack, 2024).
+Wollack, 2025).
 \item \code{"GBT_RT"} for the unconditional \eqn{GBT} statistic (Gorney & Wollack,
-2024).
+2025).
 }}
 
-\item{psi}{A matrix of item parameters.}
+\item{psi}{A matrix of item parameters. Rows correspond to items and columns
+to parameters.}
 
-\item{xi}{A matrix of person parameters. If \code{NULL} (default), person
-parameters are estimated using maximum likelihood estimation.}
+\item{xi}{A matrix of person parameters. Rows correspond to persons and
+columns to parameters. If \code{NULL} (default), person parameters are estimated
+using maximum likelihood estimation.}
 
-\item{x, r, y}{Matrices of raw data. \code{x} is for the item scores, \code{r} the item
-responses, and \code{y} the item log response times.}
+\item{x, r, y}{Matrices of raw data. Rows correspond to persons and columns to
+items. \code{x} is for the item scores, \code{r} the item responses, and \code{y} the item
+log response times.}
 
 \item{interval}{The interval to search for the person parameters. Default is
 \code{c(-4, 4)}.}
@@ -81,7 +84,7 @@ significance levels.}
 Detect answer similarity for all possible pairs.
 }
 \examples{
-# Setup for Examples 1 and 2 ------------------------------------------------
+# Setup for Example 1 -------------------------------------------------------
 
 # Settings
 set.seed(0)     # seed for reproducibility
@@ -140,34 +143,7 @@ out <- detect_as(
   y = y
 )
 
-# Example 2: Polytomous Item Scores -----------------------------------------
-
-# Generate person parameters for the generalized partial credit model
-xi <- cbind(theta = rnorm(N, mean = 0.00, sd = 1.00))
-
-# Generate item parameters for the generalized partial credit model
-psi <- cbind(
-  a = rlnorm(n, meanlog = 0.00, sdlog = 0.25),
-  c0 = 0,
-  c1 = rnorm(n, mean = -1.00, sd = 0.50),
-  c2 = rnorm(n, mean = 0.00, sd = 0.50),
-  c3 = rnorm(n, mean = 1.00, sd = 0.50)
-)
-
-# Simulate uncontaminated data
-x <- sim(psi, xi)$x
-
-# Modify contaminated data by changing the item scores to the maximum score
-x[cv, ci] <- 3
-
-# Detect answer similarity
-out <- detect_as(
-  method = c("OMG_S", "WOMG_S", "GBT_S"),
-  psi = psi,
-  x = x
-)
-
-# Setup for Example 3 -------------------------------------------------------
+# Setup for Example 2 -------------------------------------------------------
 
 # Settings
 set.seed(0)     # seed for reproducibility
@@ -185,7 +161,7 @@ ind <- ifelse(1:nrow(pair) \%in\% apply(
   which(pair[, 1] == p[1] & pair[, 2] == p[2])), 1, 0)
 names(ind) <- paste(pair[, 1], pair[, 2], sep = "-")
 
-# Example 3: Item Responses -------------------------------------------------
+# Example 2: Item Responses -------------------------------------------------
 
 # Generate person parameters for the nominal response model
 xi <- cbind(eta = rnorm(N, mean = 0.00, sd = 1.00))
@@ -220,9 +196,9 @@ out <- detect_as(
 )
 }
 \references{
-Gorney, K., & Wollack, J. A. (2024). Using response times in answer
-similarity analysis. \emph{Journal of Educational and Behavioral Statistics}.
-Advance online publication.
+Gorney, K., & Wollack, J. A. (2025). Using response times in answer
+similarity analysis. \emph{Journal of Educational and Behavioral Statistics},
+\emph{50}(3), 449--470.
 
 Maynes, D. (2014). Detection of non-independent test taking by similarity
 analysis. In N. M. Kingston & A. K. Clark (Eds.), \emph{Test fraud: Statistical

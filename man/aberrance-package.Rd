@@ -6,7 +6,7 @@
 \alias{aberrance-package}
 \title{aberrance: Detect Aberrant Behavior in Test Data}
 \description{
-Detect several types of aberrant behavior, including answer copying, answer similarity, nonparametric misfit, parametric misfit, preknowledge, rapid guessing, and test tampering.
+Detect several types of aberrant behavior, including answer copying, answer similarity, change point, nonparametric misfit, parametric misfit, preknowledge, rapid guessing, and test tampering.
 }
 \seealso{
 Useful links:
@@ -17,11 +17,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Kylie Gorney \email{kgorney@msu.edu} (\href{https://orcid.org/0000-0002-8924-0726}{ORCID}) [copyright holder]
+\strong{Maintainer}: Kylie Gorney \email{kgorney@msu.edu} (\href{https://orcid.org/0000-0002-8924-0726}{ORCID})
 
 Authors:
 \itemize{
-  \item Jiayi Deng (\href{https://orcid.org/0000-0002-1962-2956}{ORCID}) [copyright holder]
+  \item Jiayi Deng (\href{https://orcid.org/0000-0002-1962-2956}{ORCID})
 }
 
 }

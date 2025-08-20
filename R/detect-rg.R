@@ -27,8 +27,8 @@
 #'     thresholds are returned for items for which the cumulative proportion
 #'     correct is consistently above or below `chance`.
 #'
-#' @param t,x Matrices of raw data. `t` is for the item response times and `x`
-#'   the item scores.
+#' @param t,x Matrices of raw data. Rows correspond to persons and columns to
+#'   items. `t` is for the item response times and `x` the item scores.
 #'
 #' @param outlier The percentile(s) above which to delete outliers in `t`.
 #'   Length must be equal to 1 or equal to the total number of items. Default is
@@ -146,7 +146,7 @@
 #'   Sigma = matrix(c(1.00, 0.20, 0.20, 0.15), ncol = 2)
 #' )
 #'
-#' # Simulate item scores and response times
+#' # Simulate uncontaminated data
 #' dat <- sim(psi, xi)
 #' x <- dat$x
 #' t <- exp(dat$y)
@@ -247,8 +247,11 @@ detect_rg <- function(method,
   if (length(outlier) == 1) {
     outlier <- rep(outlier, times = n)
   } else if (length(outlier) != n) {
-    stop("The length of `outlier` must be equal to 1 or equal to the total ",
-         "number of items.", call. = FALSE)
+    stop(
+      "The length of `outlier` must be equal to 1 or equal to the total ",
+      "number of items.",
+      call. = FALSE
+    )
   }
   if (any(outlier < 0) || any(outlier > 100)) {
     stop("`outlier` must be between 0 and 100.", call. = FALSE)
@@ -283,8 +286,11 @@ detect_rg <- function(method,
       if (length(chance) == 1) {
         chance <- rep(chance, times = n)
       } else if (length(chance) != n) {
-        stop("The length of `chance` must be equal to 1 or equal to the total ",
-             "number of items.", call. = FALSE)
+        stop(
+          "The length of `chance` must be equal to 1 or equal to the total ",
+          "number of items.",
+          call. = FALSE
+        )
       }
       if (any(chance < 0) || any(chance > 1)) {
         stop("`chance` must be between 0 and 1.", call. = FALSE)
@@ -326,8 +332,10 @@ detect_rg <- function(method,
         }
         lines(u_i, p * conv, col = 2, lty = 2)
         segments(
-          x0 = min(u_i), y0 = chance[i] * conv,
-          x1 = max(u_i), y1 = chance[i] * conv,
+          x0 = min(u_i),
+          y0 = chance[i] * conv,
+          x1 = max(u_i),
+          y1 = chance[i] * conv,
           col = 2
         )
         plots[[i]] <- recordPlot()
@@ -345,8 +353,11 @@ detect_rg <- function(method,
       if (length(thr) == 1) {
         thr <- rep(thr, times = n)
       } else if (length(thr) != n) {
-        stop("The length of `thr` must be equal to 1 or equal to the total ",
-             "number of items.", call. = FALSE)
+        stop(
+          "The length of `thr` must be equal to 1 or equal to the total ",
+          "number of items.",
+          call. = FALSE
+        )
       }
     } else if (method == "NT") {
       if (any(nt < 0) || any(nt > 100)) {
@@ -381,13 +392,16 @@ detect_rg <- function(method,
       rtf <- 1 - colMeans(flag, na.rm = TRUE)
       unmotivated <- mean(rowSums(flag, na.rm = TRUE) >= min_item)
     }
-    out <- c(out, list(
-      thr = thr,
-      flag = flag,
-      rte = rte,
-      rtf = rtf,
-      unmotivated = unmotivated
-    ))
+    out <- c(
+      out,
+      list(
+        thr = thr,
+        flag = flag,
+        rte = rte,
+        rtf = rtf,
+        unmotivated = unmotivated
+      )
+    )
   }
 
   # Output

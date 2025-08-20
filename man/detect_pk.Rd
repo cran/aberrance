@@ -32,13 +32,13 @@ For numerical stability, an absolute cutoff value can be specified using
 \code{cutoff}. \emph{Note:} This statistic cannot be computed under the 3PL model
 or the graded response model.
 \item \code{"S_S"} for the signed score test statistic (Sinharay, 2017).
-\item \code{"W_S"} for the Wald test statistic (Sinharay & Jensen, 2019).
+\item \code{"W_S"} for the signed Wald test statistic (Sinharay & Jensen, 2019).
 }
 
 Options for response time-based statistics are:
 \itemize{
-\item \code{"L_T"} for the signed likelihood ratio test statistic, or equivalently,
-\code{"W_T"} for the Wald test statistic (Sinharay, 2020).
+\item \code{"L_T"} for the signed likelihood ratio test statistic (Sinharay, 2020).
+\item \code{"W_T"} for the signed Wald test statistic (Sinharay, 2020).
 }
 
 Options for score and response time-based statistics are:
@@ -50,15 +50,17 @@ Johnson, 2020).
 \item{ci}{A vector of compromised item positions. All other items are
 presumed secure.}
 
-\item{psi}{A matrix of item parameters.}
+\item{psi}{A matrix of item parameters. Rows correspond to items and columns
+to parameters.}
 
-\item{xi, xi_c, xi_s}{Matrices of person parameters. \code{xi} is based on all
-items, \code{xi_c} is based on the compromised items, and \code{xi_s} is based on the
-secure items. If \code{NULL} (default), person parameters are estimated using
-maximum likelihood estimation.}
+\item{xi, xi_c, xi_s}{Matrices of person parameters. Rows correspond to persons
+and columns to parameters. \code{xi} is based on all items, \code{xi_c} is based on
+the compromised items, and \code{xi_s} is based on the secure items. If \code{NULL}
+(default), person parameters are estimated using maximum likelihood
+estimation.}
 
-\item{x, y}{Matrices of raw data. \code{x} is for the item scores and \code{y} the item
-log response times.}
+\item{x, y}{Matrices of raw data. Rows correspond to persons and columns to
+items. \code{x} is for the item scores and \code{y} the item log response times.}
 
 \item{interval}{The interval to search for the person parameters. Default is
 \code{c(-4, 4)}.}
@@ -87,7 +89,7 @@ Detect preknowledge under the assumption that the set of
 compromised items is known.
 }
 \examples{
-# Setup for Examples 1 and 2 ------------------------------------------------
+# Setup for Example ---------------------------------------------------------
 
 # Settings
 set.seed(0)     # seed for reproducibility
@@ -101,7 +103,7 @@ ci <- sample(1:n, size = n * 0.40)
 # Create vector of indicators (1 = preknowledge, 0 = no preknowledge)
 ind <- ifelse(1:N \%in\% cv, 1, 0)
 
-# Example 1: Item Scores and Response Times ---------------------------------
+# Example: Item Scores and Response Times -----------------------------------
 
 # Generate person parameters for the 2PL model and lognormal model
 xi <- MASS::mvrnorm(
@@ -143,34 +145,6 @@ out <- detect_pk(
   psi = psi,
   x = x,
   y = y
-)
-
-# Example 2: Polytomous Item Scores -----------------------------------------
-
-# Generate person parameters for the generalized partial credit model
-xi <- cbind(theta = rnorm(N, mean = 0.00, sd = 1.00))
-
-# Generate item parameters for the generalized partial credit model
-psi <- cbind(
-  a = rlnorm(n, meanlog = 0.00, sdlog = 0.25),
-  c0 = 0,
-  c1 = rnorm(n, mean = -1.00, sd = 0.50),
-  c2 = rnorm(n, mean = 0.00, sd = 0.50),
-  c3 = rnorm(n, mean = 1.00, sd = 0.50)
-)
-
-# Simulate uncontaminated data
-x <- sim(psi, xi)$x
-
-# Modify contaminated data by changing the item scores to the maximum score
-x[cv, ci] <- 3
-
-# Detect preknowledge
-out <- detect_pk(
-  method = c("L_S", "ML_S", "LR_S", "S_S", "W_S"),
-  ci = ci,
-  psi = psi,
-  x = x
 )
 }
 \references{

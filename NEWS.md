@@ -1,3 +1,13 @@
+# aberrance 0.3.0
+
+* Add `detect_cp()` to detect change point.
+
+* Delete distractor-based statistics from `detect_pm()`.
+
+* Fix handling of missing data in `detect_as()`.
+
+* Generalize computation of the likelihood ratio test statistic for item response times.
+
 # aberrance 0.2.1
 
 * Convert `compute_GBT()` and `compute_M4()` to C++.

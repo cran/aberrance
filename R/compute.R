@@ -17,16 +17,43 @@ compute_EDI_TS <- function(s, p, p1, info) {
            sum(rowSums(p1, na.rm = TRUE)^2 / info))
 }
 
-#' Compute the signed likelihood ratio test statistic
+#' Compute the likelihood ratio test statistic for item scores
 #'
 #' @noRd
 
-compute_L <- function(x, p_0, p_1, theta_c, theta_s) {
+compute_L_S <- function(x, p_0, p_1, theta_c, theta_s, signed) {
   l_0 <- irt_l(x, p_0)
   l_1 <- irt_l(x, p_1)
   L <- 2 * rowSums(l_1 - l_0)
-  L[L < 0] <- 0
-  sign(theta_c - theta_s) * sqrt(L)
+  if (signed) {
+    L[L < 0] <- 0
+    sign(theta_c - theta_s) * sqrt(L)
+  } else {
+    L
+  }
+}
+
+#' Compute the likelihood ratio test statistic for item response times
+#' 
+#' @noRd
+
+compute_L_T <- function(ci, si, y, psi, tau, tau_c, tau_s, signed) {
+  l_0 <- t(-0.5 * log(2 * pi) + log(psi[, "alpha"]) -
+             psi[, "alpha"]^2 / 2 * (t(y) + outer(-psi[, "beta"], tau, "+"))^2)
+  l_1 <- l_0
+  l_1[, ci] <- t(-0.5 * log(2 * pi) + log(psi[ci, "alpha"]) -
+                   psi[ci, "alpha"]^2 / 2 *
+                   (t(y[, ci]) + outer(-psi[ci, "beta"], tau_c, "+"))^2)
+  l_1[, si] <- t(-0.5 * log(2 * pi) + log(psi[si, "alpha"]) -
+                   psi[si, "alpha"]^2 / 2 *
+                   (t(y[, si]) + outer(-psi[si, "beta"], tau_s, "+"))^2)
+  L <- 2 * rowSums(l_1 - l_0)
+  if (signed) {
+    L[L < 0] <- 0
+    sign(tau_c - tau_s) * sqrt(L)
+  } else {
+    L
+  }
 }
 
 #' Compute the omega statistic
@@ -35,6 +62,32 @@ compute_L <- function(x, p_0, p_1, theta_c, theta_s) {
 
 compute_OMG <- function(s, p, c = 0) {
   (sum(s - p) + c) / sqrt(sum(p * (1 - p)))
+}
+
+#' Compute the score test statistic for item scores
+#' 
+#' @noRd
+
+compute_S_S <- function(ci, si, x, p_0, p1_0, theta_c, theta_s, signed) {
+  info_c <- irt_info(p_0[, ci, , drop = FALSE], p1_0[, ci, , drop = FALSE])
+  info_s <- irt_info(p_0[, si, , drop = FALSE], p1_0[, si, , drop = FALSE])
+  l1_c <- irt_l1(
+    x[, ci, drop = FALSE],
+    p_0[, ci, , drop = FALSE],
+    p1_0[, ci, , drop = FALSE]
+  )
+  l1_s <- irt_l1(
+    x[, si, drop = FALSE],
+    p_0[, si, , drop = FALSE],
+    p1_0[, si, , drop = FALSE]
+  )
+  S <- rowSums(l1_c)^2 / info_c + rowSums(l1_s)^2 / info_s
+  if (signed) {
+    S[S < 0] <- 0
+    sign(theta_c - theta_s) * sqrt(S)
+  } else {
+    S
+  }
 }
 
 #' Compute skewness corrections for standardized person-fit statistics
@@ -52,24 +105,38 @@ compute_SKEW <- function(method, correct, W, mu, sigma, gamma) {
     b <- sqrt(sigma^2 / (2 * nu))
     a <- b * nu
     if (method == "L") {
-      stat <- pchisq(abs(W - mu - a) / b,
-                     df = nu, lower.tail = FALSE, log.p = TRUE)
+      stat <- pchisq(
+        abs(W - mu - a) / b,
+        df = nu,
+        lower.tail = FALSE,
+        log.p = TRUE
+      )
       stat <- qnorm(stat, lower.tail = TRUE, log.p = TRUE)
     } else {
-      stat <- pchisq(abs(W - mu + a) / b,
-                     df = nu, lower.tail = FALSE, log.p = TRUE)
+      stat <- pchisq(
+        abs(W - mu + a) / b,
+        df = nu,
+        lower.tail = FALSE,
+        log.p = TRUE
+      )
       stat <- qnorm(stat, lower.tail = FALSE, log.p = TRUE)
     }
   } else {
     if (method == "L") {
       stat <- pnorm(no) - dnorm(no) * gamma * (no^2 - 1) / 6
-      stat <- ifelse(stat <= 0 | stat >= 1,
-                     pnorm(no, lower.tail = TRUE, log.p = TRUE), log(stat))
+      stat <- ifelse(
+        stat <= 0 | stat >= 1,
+        pnorm(no, lower.tail = TRUE, log.p = TRUE),
+        log(stat)
+      )
       stat <- qnorm(stat, lower.tail = TRUE, log.p = TRUE)
     } else {
       stat <- 1 - (pnorm(no) - dnorm(no) * gamma * (no^2 - 1) / 6)
-      stat <- ifelse(stat <= 0 | stat >= 1,
-                     pnorm(no, lower.tail = FALSE, log.p = TRUE), log(stat))
+      stat <- ifelse(
+        stat <= 0 | stat >= 1,
+        pnorm(no, lower.tail = FALSE, log.p = TRUE),
+        log(stat)
+      )
       stat <- qnorm(stat, lower.tail = FALSE, log.p = TRUE)
     }
   }
@@ -292,6 +359,38 @@ compute_SPF_ST <- function(mdc, x, y, p, p1, m, s) {
     }
   }
   stat
+}
+
+#' Compute the Wald test statistic for item scores
+#' 
+#' @noRd
+
+compute_W_S <- function(ci, si, p_0, p1_0, theta_c, theta_s, signed) {
+  info_c <- irt_info(p_0[, ci, , drop = FALSE], p1_0[, ci, , drop = FALSE])
+  info_s <- irt_info(p_0[, si, , drop = FALSE], p1_0[, si, , drop = FALSE])
+  W <- (theta_c - theta_s)^2 / (1 / info_c + 1 / info_s)
+  if (signed) {
+    W[W < 0] <- 0
+    sign(theta_c - theta_s) * sqrt(W)
+  } else {
+    W
+  }
+}
+
+#' Compute the Wald test statistic for item response times
+#' 
+#' @noRd
+
+compute_W_T <- function(ci, si, psi, tau_c, tau_s, signed) {
+  info_c <- sum(psi[ci, "alpha"]^2)
+  info_s <- sum(psi[si, "alpha"]^2)
+  W <- (tau_c - tau_s)^2 / (1 / info_c + 1 / info_s)
+  if (signed) {
+    W[W < 0] <- 0
+    sign(tau_c - tau_s) * sqrt(W)
+  } else {
+    W
+  }
 }
 
 #' Compute the weighted omega statistic
